@@ -1,14 +1,14 @@
 //
-//  ViewController.swift
+//  SecondViewController.swift
 //  TicTacToe
 //
-//  Created by Ethan Chang on 10/29/18.
+//  Created by Ethan Chang on 11/28/18.
 //  Copyright © 2018 SomeAweApps. All rights reserved.
 //
 
 import UIKit
 
-class ViewController: UIViewController{
+class SecondViewController: UIViewController {
     @IBOutlet weak var backgroundView: UIView!
     @IBOutlet weak var gridLabel0: GridLabel!
     @IBOutlet weak var gridLabel1: GridLabel!
@@ -19,32 +19,30 @@ class ViewController: UIViewController{
     @IBOutlet weak var gridLabel6: GridLabel!
     @IBOutlet weak var gridLabel7: GridLabel!
     @IBOutlet weak var gridLabel8: GridLabel!
-    @IBOutlet weak var resetButton: UIButton!
-    @IBOutlet weak var XPoints: UILabel!;
-    @IBOutlet weak var OPoints: UILabel!;
-    
-    var pointX = 0
-    var pointO = 0
-    
+    @IBOutlet weak var XPoints: UILabel!; var pointX = 0
+    @IBOutlet weak var OPoints: UILabel!; var pointO = 0
     var labelsArray = [GridLabel]()
-    var previousView = Data()
+    var data = Data()
     var turn = true
     var gameOver = false
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         labelsArray = [gridLabel0,gridLabel1,gridLabel2,gridLabel3,gridLabel4,gridLabel5,gridLabel6,gridLabel7,gridLabel8]
+        if data.begin{
+            for i in 0..<9{
+                labelsArray[i].text = data.getText(index:i)
+                labelsArray[i].canTap = data.getBool(index:i)
+            }
+        }
+         turn = data.turn
+        setPoints()
     }
     
     @IBAction func onTappedGridLabel(_ sender: UITapGestureRecognizer) {
         if(!gameOver){
             for test in labelsArray{
                 if test.canTap {
-                    if(previousView.first){
-                        turn = previousView.turn
-                        previousView.first = false
-                    }
                     if turn {
                         if test.frame.contains(sender.location(in:backgroundView)){
                             test.text = "X"
@@ -61,7 +59,6 @@ class ViewController: UIViewController{
                 }
             }
         }
-        
         checkForWinner()
     }
     
@@ -84,9 +81,7 @@ class ViewController: UIViewController{
         if(labelsArray[one].text != ""){
             if (labelsArray[one].text == labelsArray[two].text) &&
                 (labelsArray[three].text == labelsArray[two].text){
-                
                 incrementPoints(imput: labelsArray[one].text ?? "")
-                
                 displayWinningMessage(message: "\(labelsArray[one].text ?? "") wins this board.")
             }
         }
@@ -100,7 +95,7 @@ class ViewController: UIViewController{
             }
         }
         if labelsArray.capacity == num{
-            displayWinningMessage(message: "This board ties.")
+            displayWinningMessage(message: "this board ties.")
         }
     }
     
@@ -112,7 +107,6 @@ class ViewController: UIViewController{
             pointO += 1
             OPoints.text = "O has \(pointO) points"
         }
-        
         if pointX == 1 {
             XPoints.text = "X has \(pointX) point"
         }
@@ -139,16 +133,9 @@ class ViewController: UIViewController{
         gameOver = false;
     }
     
-    @IBAction func resetScores(_ sender: UIButton) {
-        pointX = 0
-        pointO = 0
-        XPoints.text = "X has \(pointX) points"
-        OPoints.text = "O has \(pointO) points"
-    }
-    
     func setPoints(){
-        pointX = previousView.Xpoints
-        pointO = previousView.Opoints
+        pointX = data.Xpoints
+        pointO = data.Opoints
         XPoints.text = "X has \(pointX) points"
         OPoints.text = "O has \(pointO) points"
         if pointX == 1 {
@@ -159,13 +146,31 @@ class ViewController: UIViewController{
         }
     }
     
-    @IBAction func unwindToInitialViewController(segue:UIStoryboardSegue){}
+    @IBAction func resetScore(_ sender: UIButton) {
+        pointX = 0
+        pointO = 0
+        XPoints.text = "X has \(pointX) points"
+        OPoints.text = "O has \(pointO) points"
+    }
+    
+    
+    func getData() -> Data{
+        let data = Data()
+        for x in 0..<9{
+            data.addBool(imput:labelsArray[x].canTap)
+            data.addText(imput:labelsArray[x].text!)
+        }
+        data.turn = turn
+        data.first = true
+        data.begin = true
+        data.Xpoints = pointX
+        data.Opoints = pointO
+        return data
+    }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let dvc = segue.destination as! SecondViewController
-        previousView.turn = turn
-        previousView.Xpoints = pointX
-        previousView.Opoints = pointO
-        dvc.data = previousView
+        let dvc = segue.destination as! ViewController
+        dvc.previousView = getData()
+        dvc.setPoints()
     }
 }
